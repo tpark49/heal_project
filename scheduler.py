@@ -2,6 +2,92 @@ import json
 import pandas as pd
 from datetime import date, datetime, timedelta
 
+class appt: 
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end 
+        self.left = None 
+        self.right = None 
+        
+class scheduler_tree: 
+    def __init__(self, start_shift_time='08:00', end_shift_time='17:00', time_zone="EST"):
+        self.start_shift_time = datetime.strptime(start_shift_time, '%H:%M')
+        self.end_shift_time = datetime.strptime(end_shift_time, '%H:%M') 
+        self.appt_timelimit = 1
+        self.time_zone = time_zone 
+        self.data = {}
+    
+    def build_tree(self):
+        jsonFile = open("data.json", "r") 
+        appt_data = json.load(jsonFile) 
+        jsonFile.close()
+        
+        for date in appt_data: 
+            
+            for appt in appt_data[date]:
+                
+                self.add_appt(appt["start"], appt["end"], date)
+            
+        return True 
+                
+                
+    def add_appt(self, start, end, date):
+        
+        appt_to_add = appt(
+                datetime.strptime(start, '%H:%M'), 
+                datetime.strptime(end, '%H:%M')
+            )
+        
+        
+        if date not in self.data: 
+            self.data[date] = appt_to_add
+            return True 
+        
+        else: 
+            start = datetime.strptime(start, '%H:%M')
+            end = datetime.strptime(end, '%H:%M')
+            
+            curr_appt = self.data[date]
+            
+            while True: 
+                            
+                if end <= curr_appt.start: 
+                    if curr_appt.left is None: 
+                        curr_appt.left = appt_to_add
+                        return True 
+                    else:
+                        curr_appt = curr_appt.left 
+                
+                elif start >= curr_appt.end:
+                    if curr_appt.right is None: 
+                        curr_appt.right = appt_to_add
+                        return True
+                    else: 
+                        curr_appt = curr_appt.right 
+                
+                else: 
+                    return False
+    
+    #inorder traveral 
+    def print_appt(self, date):
+        
+        root = self.data[date]
+        
+        def _helper(root):
+        
+            if root.left:
+                _helper(root.left)
+
+            print(root.start.time(), root.end.time())
+            print("-----------------")
+
+            if root.right:
+                _helper(root.right)
+        
+        _helper(root)
+                        
+
+
 
 class scheduler: 
     def __init__(self, start_shift_time='08:00', end_shift_time='17:00', time_zone="EST"):
