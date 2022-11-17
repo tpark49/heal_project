@@ -68,6 +68,61 @@ class scheduler_tree:
                 else: 
                     return False
     
+    #remove appt 
+    def remove_appt(self, start, end, date): 
+        
+        curr_appt = self.data[date]
+        start = datetime.strptime(start, '%H:%M')
+        end = datetime.strptime(end, '%H:%M')
+        
+        def minValueNode(root):
+            
+            curr_root = root 
+            
+            while curr_root: 
+                curr_root = curr_root.left
+                
+            return curr_root
+        
+        def _remove_helper(root, start, end): 
+
+            if root is None:
+                return root
+                
+            if end < root.start: 
+                root.left = _remove_helper(root.left, start, end)
+
+            
+            elif start > root.end: 
+                root.right = _remove_helper(root.right, start, end)
+                
+            else:
+
+                # Node with only one child or no child
+                if root.left is None:
+                    temp = root.right
+                    root = None
+                    return temp
+
+                elif root.right is None:
+                    temp = root.left
+                    root = None
+                    return temp
+
+                # Node with two children: grab smallest node of right child
+                temp = minValueNode(root.right)
+
+                # Copy the inorder successor's 
+                root.start = temp.start 
+                root.end = temp.end
+
+                # Delete the inorder successor
+                root.right = _remove_helper(root.right, temp.start, temp.end)
+
+            return root
+        
+        _remove_helper(curr_appt, start, end)
+    
     #inorder traveral 
     def print_appt(self, date):
         
