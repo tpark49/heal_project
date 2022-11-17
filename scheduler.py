@@ -52,12 +52,10 @@ class scheduler:
         self.remove_appt(start, end, date)
 
         if self.schedule_appt(new_start, new_end, new_date) == True: 
-            print("HELLO")
             return True 
 
         else:
             self.schedule_appt(start, end, date) 
-            print("TONY")
             return False
 
 
